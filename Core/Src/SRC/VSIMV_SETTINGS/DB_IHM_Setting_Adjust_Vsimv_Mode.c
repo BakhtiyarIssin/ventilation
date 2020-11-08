@@ -26,7 +26,7 @@
 /*                                INCLUDE FILES		                          	*/
 /******************************************************************************/
 
-#include "typedef.h"
+// #include "typedef.h"
 #include "DB_Current.h"
 #include "DB_IHM_Setting_Adjust_Vsimv_Mode.h"
 

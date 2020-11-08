@@ -10,6 +10,44 @@ RM := rm -rf
 -include sources.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
+-include Core/Src/SRC/VSIMV_SETTINGS/subdir.mk
+-include Core/Src/SRC/VOL_SETTINGS/subdir.mk
+-include Core/Src/SRC/VENTILATION/subdir.mk
+-include Core/Src/SRC/USB_SETTINGS/subdir.mk
+-include Core/Src/SRC/TIMERS/subdir.mk
+-include Core/Src/SRC/SYSTEM/subdir.mk
+-include Core/Src/SRC/SET_UP/subdir.mk
+-include Core/Src/SRC/SECURITY/subdir.mk
+-include Core/Src/SRC/SCHEDULER/subdir.mk
+-include Core/Src/SRC/PUST/subdir.mk
+-include Core/Src/SRC/PSV_SETTINGS/subdir.mk
+-include Core/Src/SRC/PSIMV_SETTINGS/subdir.mk
+-include Core/Src/SRC/PRES_SETTINGS/subdir.mk
+-include Core/Src/SRC/MAIN/subdir.mk
+-include Core/Src/SRC/INTERRUPTS/subdir.mk
+-include Core/Src/SRC/HMI/subdir.mk
+-include Core/Src/SRC/GENERAL/subdir.mk
+-include Core/Src/SRC/EEPROM/subdir.mk
+-include Core/Src/SRC/DRIVERS_USB/subdir.mk
+-include Core/Src/SRC/DRIVERS_SPI/subdir.mk
+-include Core/Src/SRC/DRIVERS_SPEED_BLOWER/subdir.mk
+-include Core/Src/SRC/DRIVERS_RTC/subdir.mk
+-include Core/Src/SRC/DRIVERS_NAND_FLASH/subdir.mk
+-include Core/Src/SRC/DRIVERS_HMI/subdir.mk
+-include Core/Src/SRC/DRIVERS_FLASH_EVENT/subdir.mk
+-include Core/Src/SRC/DRIVERS_EEPROM/subdir.mk
+-include Core/Src/SRC/DRIVERS_DISPLAY/subdir.mk
+-include Core/Src/SRC/DRIVERS_COM/subdir.mk
+-include Core/Src/SRC/DRIVERS_ADC/subdir.mk
+-include Core/Src/SRC/DRIVERS/subdir.mk
+-include Core/Src/SRC/DISPLAY/subdir.mk
+-include Core/Src/SRC/DATABASE_SETTINGS/subdir.mk
+-include Core/Src/SRC/DATABASE/subdir.mk
+-include Core/Src/SRC/CYCLES/subdir.mk
+-include Core/Src/SRC/CPAP_SETTINGS/subdir.mk
+-include Core/Src/SRC/CONFIG_SETTINGS/subdir.mk
+-include Core/Src/SRC/COMPUTE/subdir.mk
+-include Core/Src/SRC/ACTUATOR/subdir.mk
 -include Core/Src/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -38,6 +76,9 @@ default.size.stdout \
 OBJDUMP_LIST += \
 1.list \
 
+OBJCOPY_HEX += \
+1.hex \
+
 OBJCOPY_BIN += \
 1.bin \
 
@@ -61,6 +102,11 @@ default.size.stdout: $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
+1.hex: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "1.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 1.bin: $(EXECUTABLES)
 	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "1.bin"
 	@echo 'Finished building: $@'
@@ -71,7 +117,7 @@ clean:
 	-$(RM) *
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN)
 
 .PHONY: all clean dependents
 .SECONDARY:
