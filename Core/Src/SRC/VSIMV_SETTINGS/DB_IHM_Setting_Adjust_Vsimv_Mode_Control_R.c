@@ -32,8 +32,8 @@
 /******************************************************************************/
 /*                                INCLUDE FILES		                          	*/
 /******************************************************************************/
-// #include "typedef.h"
-#include "enum.h"
+#include "GENERAL/typedef.h"
+#include "GENERAL/enum.h"
 #include "structure.h"
 #include "DRV_VarEeprom.h"
 #include "DB_Control.h"

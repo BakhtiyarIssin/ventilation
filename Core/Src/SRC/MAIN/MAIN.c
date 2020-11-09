@@ -93,6 +93,8 @@ void main(void)
 	  SystemClock_Config();
 
 
+
+
 #ifdef MEM_TEST
 	/* Memory test are performed only if MEM_TEST macro is defined from command line */
 

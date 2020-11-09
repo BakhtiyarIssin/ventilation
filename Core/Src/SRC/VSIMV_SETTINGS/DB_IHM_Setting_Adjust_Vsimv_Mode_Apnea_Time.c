@@ -31,7 +31,7 @@
 /******************************************************************************/
 /*                                INCLUDE FILES		                          	*/
 /******************************************************************************/
-// #include "typedef.h"
+#include "typedef.h"
 #include "enum.h"
 #include "structure.h"
 #include "DRV_VarEeprom.h"
