@@ -21,6 +21,7 @@
 /******************************************************************************/
 #ifndef TYPEDEF_H
 #define TYPEDEF_H
+#include <stdint.h>
 /******************************************************************************/
 /*
 #ifndef  _BORLAND
@@ -46,8 +47,8 @@ typedef int  e_BOOL;
 */
 
 // RAM interne
-/*  #ifndef  _BORLAND  */
-typedef unsigned int         	BIT;
+/*  #ifndef  _BORLAND
+typedef unsigned int    BIT;
 typedef unsigned char  	UBYTE_I;
 typedef unsigned int  idata 	UWORD16_I;
 typedef unsigned long idata  	UWORD32_I;
@@ -61,6 +62,7 @@ typedef char                	BIT;
 #define idata
 #endif
 */
+/*
 #ifndef  _BORLAND
 // RAM extension
 typedef unsigned char  	UBYTE;
@@ -71,13 +73,14 @@ typedef   signed int 	SWORD16;
 typedef   signed long  	SWORD32;
 typedef   		 float 	FLOAT32;
 #else
+*/
 typedef unsigned char  	UBYTE;
-typedef unsigned short  UWORD16;
-typedef unsigned long  	UWORD32;
+typedef uint16_t  UWORD16;
+typedef uint32_t  	UWORD32;
 typedef   signed char  	SBYTE;
-typedef   signed short 	SWORD16;
-typedef   signed long  	SWORD32;
-typedef   		 float 	FLOAT32;
+typedef   int16_t 	SWORD16;
+typedef   int32_t  	SWORD32;
+typedef   	float	  	FLOAT32;
 
 #define sdata
 #define xnear
@@ -87,8 +90,9 @@ typedef   		 float 	FLOAT32;
 #endif
 
 
-#ifndef  _BORLAND
-	#ifndef _TASKING
+
+// #ifndef  _BORLAND
+//	#ifndef _TASKING
 		#ifndef NULL
 	 		#ifdef __cplusplus              // EC++
 	   		#define NULL   0
@@ -96,13 +100,13 @@ typedef   		 float 	FLOAT32;
 	   		#define NULL ((void *) 0)
 	 		#endif
 		#endif	
-	#else
+/*	#else
 		#ifndef NULL
 			#ifdef	__cplusplus
 				#define NULL	(0)
-			#else	/* !defined(__cplusplus) */
+			#else	/* !defined(__cplusplus)
 				#define	NULL	( 0)
-			#endif	/* defined(__cplusplus) */
+			#endif	/* defined(__cplusplus)
 		#endif
 	#endif
 #else
@@ -115,6 +119,6 @@ typedef   		 float 	FLOAT32;
 	#endif	
 #endif
 
-#endif
+#endif */
 /******************************************************************************/
 

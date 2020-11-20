@@ -4,7 +4,7 @@
 /*																										*/
 /*----------------------------------------------------------------------------*/
 /*                                                                 			  	*/
-/* Filename	: DB_IHM_Setting_Adjust_Vsimv_Mode_High_R.c			          		*/
+/* Filename		: DB_IHM_Setting_Adjust_Cpap_Mode_Low_Vti.c 		          		*/
 /*                                                           				  		*/
 /*----------------------------------------------------------------------------*/
 
@@ -13,13 +13,15 @@
 
 /******************************************************************************/
 /*%C 			Functionnal description : 	this function controls the limits		*/
-/*%C        of the High_R setting in the Vsimv mode	  								*/
+/*%C        of the Low_Vti setting in the Cpap mode  									*/
 /*                                                            				  		*/
-/*%C HIGH R [min:10, max:70, step:1, default:OFF]   									*/
-/*%C HIGH R is include in its own limits(otherwise, value is saturated)       */
-/*%C CONTROL R <= HIGH R - 5 except if CONTROL R = OFF								*/
-/*%C If the conditions on Control R is not respected a limit flag is set for, */
+/*%C LOW VTI [min:30, max:2000, step:10, default:30 = OFF]    						*/
+/*%C LOW VTI is include in its own limits(otherwise, value is saturated)	   */
+/*%C LOW VTI <= HIGH VTI - 20 ml       									            */
+/*%C If the conditions on High Vti is not respected, a limit flag is	set for  */
 /*%C IHM indication and the value is saturated                                */
+/*%C If the High Vti is set to No, the high Vti is refreshed with the low Vti */
+/*%C conditions                                                               */
 /*                                                            				  		*/
 /******************************************************************************/
 /*%I 	Input Parameter :				Id                                    		  	*/
@@ -31,71 +33,73 @@
 /******************************************************************************/
 /*                                INCLUDE FILES		                          	*/
 /******************************************************************************/
-#include "GENERAL/typedef.h"
-#include "GENERAL/enum.h"
-#include "GENERAL/structure.h"
+#include "typedef.h"
+#include "enum.h"
+#include "structure.h"
 #include "DRV_VarEeprom.h"
 #include "DB_Current.h"
 #include "DB_Control.h"
 #include "DB_Rtc.h"
 #include "DB_IhmAccessParaDataBase.h"
-#include "DB_IHM_Setting_Adjust_Vsimv_Mode_High_R.h"
+#include "DB_IHM_Setting_Adjust_Cpap_Mode_Low_Vti.h"
 
 /* locate database code to specific section */
 #include "locate_database_code.h"
-
 /******************************************************************************/
 /*                                FUNCTION BODY		                          	*/
 /******************************************************************************/
-UWORD16 DB_IHM_Setting_Adjust_Vsimv_Mode_High_R(UWORD16 *Value,
-															   UWORD16 Id)
+
+UWORD16 DB_IHM_Setting_Adjust_Cpap_Mode_Low_Vti(UWORD16 *Value,
+															  UWORD16 Id)
 {
 
 /*%C Function result declaration */
    UWORD16 Function_Result = FALSE;
 
-/*%C Id values recuperation from adjust base in vsimv mode */
-   UWORD16 Adjust_Control_R    = EEP_DB_VSIMV_Adjust[ADJUST_CONTROL_R_U16];
-
+/*%C Id values recuperation from adjust base in Cpap  mode */
+   UWORD16 Adjust_High_Vti = EEP_DB_CPAP_Adjust[ADJUST_HIGH_VTI_U16];
+   
 /*%C Limit tests */
-   if (*Value < cDB_VSIMV_TEST_ADJUST_DB[Id].mini)
-	{
-/*%C  Value limited to its min */
-      *Value = cDB_VSIMV_TEST_ADJUST_DB[Id].mini;
-      Function_Result = FALSE;
-	}
-   else if (*Value > cDB_VSIMV_TEST_ADJUST_DB[Id].maxi)
-	{
-/*%C  Value limited to its max */
-      *Value = cDB_VSIMV_TEST_ADJUST_DB[Id].maxi;
-/*%C  High R No select flag writing  	*/
-		DB_WriteDataInEepAndRam(&EEP_DB_VSIMV_Adjust[HIGH_R_NO_SELECT_U16],
-										TRUE);
-      Function_Result = FALSE;
-	}
-   else if (*Value < Adjust_Control_R + cAlarmRHysteresis)
+/*%C Down limit test */
+   if (*Value < cDB_CPAP_TEST_ADJUST_DB[Id].mini)
    {
-/*%C  Value limited to its min */
-      *Value = Adjust_Control_R + cAlarmRHysteresis;
-/*%C  Limit flag for HMI indication */
-		DB_ControlWrite(LIMIT_CONTROL_R_U16,
-							 TRUE);
-		Function_Result = FALSE;
+/*%C  Low Vti writing by DB_WriteDataInEepAndRam function call 	*/
+      DB_WriteDataInEepAndRam(&EEP_DB_CPAP_Adjust[LOW_VTI_NO_SELECT_U16],
+										TRUE);
+		Function_Result = TRUE;
+   }
+   else if (*Value > cDB_CPAP_TEST_ADJUST_DB[Id].maxi)
+   {
+		Function_Result = TRUE;
+   }
+/*%C Up limit test */
+   else if (*Value > Adjust_High_Vti - cLowVtiHighVtiHysteresis)
+   {
+/*%C  If the high Vti value is not set, high Vti = low Vti + 20 */
+/*%C     => High vti flag for IHM indication */
+	        DB_ControlWrite(LIMIT_HIGH_VTI_U16,
+				   TRUE);
+		Function_Result = TRUE;
    }
 /*%C If "no select flag" activated => "no select flag" cancelled */
-	else if (EEP_DB_VSIMV_Adjust[HIGH_R_NO_SELECT_U16] == TRUE)
+	else if (EEP_DB_CPAP_Adjust[LOW_VTI_NO_SELECT_U16] == TRUE)
 	{
-		DB_WriteDataInEepAndRam(&EEP_DB_VSIMV_Adjust[HIGH_R_NO_SELECT_U16],
+/*%C  Flag writing by DB_WriteDataInEepAndRam function call 	*/
+		DB_WriteDataInEepAndRam(&EEP_DB_CPAP_Adjust[LOW_VTI_NO_SELECT_U16],
 										FALSE);
-/*%C  Limit flag for HMI indication */
-		DB_ControlWrite(LIMIT_CONTROL_R_U16,
+/*%C  High vti flag desactivation */
+		DB_ControlWrite(LIMIT_HIGH_VTI_U16,
 							 FALSE);
 		Function_Result = TRUE;
 	}
-	else
+   else
    {
-/*%C  Value in range  */
-		Function_Result = FALSE;
+/*%C  Setting authorized */
+/*%C  High vti flag desactivation */
+		DB_ControlWrite(LIMIT_HIGH_VTI_U16,
+							 FALSE);
+
+      Function_Result = FALSE;
    }
 
 	return(Function_Result);

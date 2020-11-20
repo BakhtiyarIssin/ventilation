@@ -12,7 +12,7 @@
 
 
 /******************************************************************************/
-/*%C Functionnal description : 	Structure Type redéfinition       				*/
+/*%C Functionnal description : 	Structure Type redï¿½finition       				*/
 /*                                                            				  		*/
 /******************************************************************************/
 /*%I 	Input Parameter : 			None		       			                  	*/
@@ -53,7 +53,7 @@ typedef struct
 	e_BOOL autoreload;
 	UWORD32 autovalue;
 }t_TIM_MINUTE_TAB_DEF_ELEMENT;
-
+/*
 #ifndef _BORLAND
 typedef struct 
 	{
@@ -62,7 +62,7 @@ typedef struct
 	UWORD16 maxi;
 	}
    idata t_MEASURES_TIMES;
-#else
+#else   */
 typedef struct 
 	{
 	UWORD16 mini;
@@ -70,7 +70,7 @@ typedef struct
 	UWORD16 maxi;
 	}
    t_MEASURES_TIMES;
-#endif
+// #endif
 
 typedef struct {
 	UWORD16 DisplayFunction;

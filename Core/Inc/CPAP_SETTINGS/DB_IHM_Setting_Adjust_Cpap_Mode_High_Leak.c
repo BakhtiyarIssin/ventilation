@@ -4,7 +4,7 @@
 /*																										*/
 /*----------------------------------------------------------------------------*/
 /*                                                                 			  	*/
-/* Filename	: DB_IHM_Setting_Adjust_Vsimv_Mode_High_R.c			          		*/
+/* Filename		: DB_IHM_Setting_Adjust_Cpap_Mode_High_Leak.c	          		*/
 /*                                                           				  		*/
 /*----------------------------------------------------------------------------*/
 
@@ -13,13 +13,9 @@
 
 /******************************************************************************/
 /*%C 			Functionnal description : 	this function controls the limits		*/
-/*%C        of the High_R setting in the Vsimv mode	  								*/
+/*%C        of the High leak setting in the Cpap mode  	   						*/
 /*                                                            				  		*/
-/*%C HIGH R [min:10, max:70, step:1, default:OFF]   									*/
-/*%C HIGH R is include in its own limits(otherwise, value is saturated)       */
-/*%C CONTROL R <= HIGH R - 5 except if CONTROL R = OFF								*/
-/*%C If the conditions on Control R is not respected a limit flag is set for, */
-/*%C IHM indication and the value is saturated                                */
+/*%C HIGH LEAK [min:0 = OFF, max:200, step:5, default:0]      						*/
 /*                                                            				  		*/
 /******************************************************************************/
 /*%I 	Input Parameter :				Id                                    		  	*/
@@ -31,72 +27,54 @@
 /******************************************************************************/
 /*                                INCLUDE FILES		                          	*/
 /******************************************************************************/
-#include "GENERAL/typedef.h"
-#include "GENERAL/enum.h"
-#include "GENERAL/structure.h"
+#include "typedef.h"
+#include "enum.h"
+#include "structure.h"
 #include "DRV_VarEeprom.h"
 #include "DB_Current.h"
 #include "DB_Control.h"
 #include "DB_Rtc.h"
 #include "DB_IhmAccessParaDataBase.h"
-#include "DB_IHM_Setting_Adjust_Vsimv_Mode_High_R.h"
 
 /* locate database code to specific section */
 #include "locate_database_code.h"
-
 /******************************************************************************/
 /*                                FUNCTION BODY		                          	*/
 /******************************************************************************/
-UWORD16 DB_IHM_Setting_Adjust_Vsimv_Mode_High_R(UWORD16 *Value,
+
+UWORD16 DB_IHM_Setting_Adjust_Cpap_Mode_High_Leak(UWORD16 *Value,
 															   UWORD16 Id)
 {
 
 /*%C Function result declaration */
    UWORD16 Function_Result = FALSE;
 
-/*%C Id values recuperation from adjust base in vsimv mode */
-   UWORD16 Adjust_Control_R    = EEP_DB_VSIMV_Adjust[ADJUST_CONTROL_R_U16];
-
 /*%C Limit tests */
-   if (*Value < cDB_VSIMV_TEST_ADJUST_DB[Id].mini)
-	{
-/*%C  Value limited to its min */
-      *Value = cDB_VSIMV_TEST_ADJUST_DB[Id].mini;
-      Function_Result = FALSE;
-	}
-   else if (*Value > cDB_VSIMV_TEST_ADJUST_DB[Id].maxi)
-	{
-/*%C  Value limited to its max */
-      *Value = cDB_VSIMV_TEST_ADJUST_DB[Id].maxi;
-/*%C  High R No select flag writing  	*/
-		DB_WriteDataInEepAndRam(&EEP_DB_VSIMV_Adjust[HIGH_R_NO_SELECT_U16],
-										TRUE);
-      Function_Result = FALSE;
-	}
-   else if (*Value < Adjust_Control_R + cAlarmRHysteresis)
+/*%C Down limit test */
+/*%C Up limit test */
+   if  (*Value < cDB_CPAP_TEST_ADJUST_DB[Id].mini)
    {
-/*%C  Value limited to its min */
-      *Value = Adjust_Control_R + cAlarmRHysteresis;
-/*%C  Limit flag for HMI indication */
-		DB_ControlWrite(LIMIT_CONTROL_R_U16,
-							 TRUE);
-		Function_Result = FALSE;
+		Function_Result = TRUE;
+   }
+   else if (*Value > cDB_CPAP_TEST_ADJUST_DB[Id].maxi)
+   {
+/*%C  High leak flag writing by DB_WriteDataInEepAndRam function call 	*/
+        DB_WriteDataInEepAndRam(&EEP_DB_CPAP_Adjust[HIGH_LEAK_SELECT_U16],
+										FALSE);
+		Function_Result = TRUE;
    }
 /*%C If "no select flag" activated => "no select flag" cancelled */
-	else if (EEP_DB_VSIMV_Adjust[HIGH_R_NO_SELECT_U16] == TRUE)
+	else if (EEP_DB_CPAP_Adjust[HIGH_LEAK_SELECT_U16] == FALSE)
 	{
-		DB_WriteDataInEepAndRam(&EEP_DB_VSIMV_Adjust[HIGH_R_NO_SELECT_U16],
-										FALSE);
-/*%C  Limit flag for HMI indication */
-		DB_ControlWrite(LIMIT_CONTROL_R_U16,
-							 FALSE);
+/*%C  Flag writing by DB_WriteDataInEepAndRam function call 	*/
+		DB_WriteDataInEepAndRam(&EEP_DB_CPAP_Adjust[HIGH_LEAK_SELECT_U16],
+										TRUE);
 		Function_Result = TRUE;
 	}
-	else
+   else
    {
-/*%C  Value in range  */
-		Function_Result = FALSE;
+/*%C  Setting authorized */
+      Function_Result = FALSE;
    }
-
 	return(Function_Result);
 }

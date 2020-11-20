@@ -49,6 +49,10 @@ RM := rm -rf
 -include Core/Src/SRC/COMPUTE/subdir.mk
 -include Core/Src/SRC/ACTUATOR/subdir.mk
 -include Core/Src/subdir.mk
+-include Core/Inc/CPAP_SETTINGS/subdir.mk
+-include Core/Inc/CONFIG_SETTINGS/subdir.mk
+-include Core/Inc/COMPUTE/subdir.mk
+-include Core/Inc/ACTUATOR/subdir.mk
 -include subdir.mk
 -include objects.mk
 

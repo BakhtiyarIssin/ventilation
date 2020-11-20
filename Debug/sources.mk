@@ -20,6 +20,10 @@ OBJCOPY_BIN :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Core/Inc/ACTUATOR \
+Core/Inc/COMPUTE \
+Core/Inc/CONFIG_SETTINGS \
+Core/Inc/CPAP_SETTINGS \
 Core/Src/SRC/ACTUATOR \
 Core/Src/SRC/COMPUTE \
 Core/Src/SRC/CONFIG_SETTINGS \
